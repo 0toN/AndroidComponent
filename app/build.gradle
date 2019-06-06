@@ -1,0 +1,74 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
+
+    defaultConfig {
+        applicationId rootProject.ext.android.applicationId
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        versionCode rootProject.ext.android.versionCode
+        versionName rootProject.ext.android.versionName
+
+        testInstrumentationRunner rootProject.ext.android.testInstrumentationRunner
+        multiDexEnabled true
+        flavorDimensions "versionCode"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
+    }
+
+    /*
+     signingConfigs {
+         release {
+             keyAlias RELEASE_KEY_ALIAS
+             keyPassword RELEASE_KEY_PASSWORD
+             storeFile file(RELEASE_STORE_FILE)
+             storePassword RELEASE_STORE_PASSWORD
+         }
+         debug {
+             keyAlias RELEASE_KEY_ALIAS
+             keyPassword RELEASE_KEY_PASSWORD
+             storeFile file(RELEASE_STORE_FILE)
+             storePassword RELEASE_STORE_PASSWORD
+         }
+     }*/
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            zipAlignEnabled false
+            shrinkResources false
+//            signingConfig signingConfigs.debug
+        }
+        release {
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
+//            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility rootProject.ext.java.sourceCompatibility
+        targetCompatibility rootProject.ext.java.targetCompatibility
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    if(!rootProject.ext.isApplication){
+        implementation project(':module1')
+        implementation project(':module2')
+    }
+    implementation project(':common')
+    kapt rootProject.ext.dependencies["arouter-compiler"]
+    kapt rootProject.ext.dependencies["glide_compiler"]
+}

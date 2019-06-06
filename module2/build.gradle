@@ -1,0 +1,66 @@
+if (rootProject.ext.isApplication) {
+    //可独立运行的app
+    apply plugin: 'com.android.application'
+} else {
+    //被依赖的library
+    apply plugin: 'com.android.library'
+}
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
+    //设置资源文件前缀，防止各个组件间资源名冲突
+    resourcePrefix "module2_"
+
+    defaultConfig {
+        if (rootProject.ext.isApplication){
+            //组件模式下设置applicationId
+            applicationId "com.xwm.module2"
+        }
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        versionCode rootProject.ext.android.versionCode
+        versionName rootProject.ext.android.versionName
+
+        testInstrumentationRunner rootProject.ext.android.testInstrumentationRunner
+        multiDexEnabled true
+        flavorDimensions "versionCode"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility rootProject.ext.java.sourceCompatibility
+        targetCompatibility rootProject.ext.java.targetCompatibility
+    }
+
+    sourceSets {
+        main {
+            if (rootProject.ext.isApplication) {
+                manifest.srcFile 'src/main/module/AndroidManifest.xml'
+            } else {
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':common')
+    kapt rootProject.ext.dependencies["arouter-compiler"]
+    kapt rootProject.ext.dependencies["glide_compiler"]
+}
